@@ -43,7 +43,11 @@ module FireAndForget
     end
 
     def body
-      @body ||= @payload ? @payload.to_json : ""
+      @body ||= if @payload
+                  @payload.is_a?(String) ? @payload : @payload.to_json
+                else
+                  ""
+                end
     end
 
     def body_length
