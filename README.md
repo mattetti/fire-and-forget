@@ -29,7 +29,7 @@ Or install it yourself as:
 FAF.post "http://example.com", {:foo => 'bar'}, {"X-Custom" => true}
 ```
 
-Currently, FAF only supports very basic options: JSON requests, no
+Currently, FAF only supports very basic options, no
 authentication unless you pass all the details via the headers.
 
 Once the request is sent, the socket is closed which might or might not

@@ -49,6 +49,8 @@ module FireAndForget
       #puts (req << body).inspect
       socket.puts "\r\n"
       socket.puts body
+      # For debugging purposed, the forget param can be set to false
+      # so the response is being printed.
       unless forget
         while output = socket.gets
           print output
