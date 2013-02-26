@@ -1,13 +1,12 @@
 # Fire and Forget HTTP client
 
-Using this gem is probably a very bad idea in at least 98% of the cases
-I can think of. Think of a it as a HTTP client that doesn't care about
-the response and doesn't care about basically anything besides sending
-its payload to a server. An alternative name for this client is
-"scumbag-HTTP-client".
+You probably don't need this gem. 
+Think of a it as a HTTP client that doesn't care about
+the response once it sent its request and doesn't care about basically anything besides sending
+its payload to a server and making sure the connection was established.
 
 So, unless you are really sure you want to use this lib, you're probably
-better off looking at the hundreds other Ruby HTTP libraries.
+better off looking at the many other Ruby HTTP libraries out there.
 
 ## Installation
 
@@ -26,7 +25,7 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
-FAF.post "http://example.com", {:foo => 'bar'}, {"X-Custom" => true}
+FAF.post "http://example.com", {:foo => 'bar'}, {"X-Header" => true}
 ```
 In the example above, the request will be sent as a JSON request and the
 body (a Ruby hash) will be converted to json if `to_json` is available on
@@ -43,8 +42,8 @@ Sometimes, you might want to debug the response or potentially slow down
 the application code. You can pass a block to do that:
 
 ```ruby
-FAF.post "http://example.com", {:foo => 'bar'} do |socket|
-  sleep(0.02)
+FAF.post "http://example.com", {:foo => 'bar'} do
+  sleep(0.02) # sleep 20ms before closing the socket
 end
 ```
 
@@ -57,6 +56,10 @@ FAF.post "http://example.com", {:foo => 'bar'} do |socket|
   end
 end
 ```
+
+Note that the block is executed before the connection is closed which is
+important if you want the client to wait before closing the socket, or
+if you want to read.
 
 This will not "forget" about the response, but instead wait for data to
 come down the socket so we can print.
