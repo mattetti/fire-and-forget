@@ -27,7 +27,6 @@ module FireAndForget
       req << "Host: #{uri.host}:#{uri.port}"
       req << "Content-Type: #{content_type}"
       req << "Content-Length: #{body_length}"
-      req << "Connection: close"
       processed_headers.each do |part|
         req << part
       end
