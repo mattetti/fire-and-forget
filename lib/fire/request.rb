@@ -26,7 +26,12 @@ module FireAndForget
       uri = URI.parse(url)
       req = []
       req << "#{method.respond_to?(:upcase) ? method.upcase : method.to_s.upcase} #{uri.request_uri} HTTP/1.0"
-      req << "Host: #{uri.host}:#{uri.port}"
+      if uri.port != 80
+        req << "Host: #{uri.host}:#{uri.port}"
+      else
+        req << "Host: #{uri.host}"
+      end
+      req << "User-Agent: FAF #{FireAndForget::VERSION}"
       processed_headers.each do |part|
         req << part
       end
