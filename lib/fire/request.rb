@@ -26,7 +26,7 @@ module FireAndForget
       @args = args
     end
 
-    def execute(forget=true)
+    def execute
       uri = URI.parse(url)
       req = []
       req << "#{method.respond_to?(:upcase) ? method.upcase : method.to_s.upcase} #{uri.request_uri} HTTP/1.0"
@@ -49,12 +49,9 @@ module FireAndForget
       #puts (req << body).inspect
       socket.puts "\r\n"
       socket.puts body
-      # For debugging purposed, the forget param can be set to false
-      # so the response is being printed.
-      unless forget
-        while output = socket.gets
-          print output
-        end
+      # For debugging purposes you can pass a block to read the socket or sleep for a bit.
+      if block_given?
+        yield(socket)
       end
       ensure
       socket.close if socket
