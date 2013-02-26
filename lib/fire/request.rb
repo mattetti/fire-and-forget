@@ -23,7 +23,7 @@ module FireAndForget
     def execute
       uri = URI.parse(url)
       req = []
-      req << "#{method.upcase} #{uri.request_uri} HTTP/1.0"
+      req << "#{method.respond_to?(:upcase) ? method.upcase : method.to_s.upcase} #{uri.request_uri} HTTP/1.0"
       req << "Host: #{uri.host}:#{uri.port}"
       req << "Content-Type: #{content_type}"
       req << "Content-Length: #{body_length}"
