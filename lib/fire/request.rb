@@ -9,7 +9,7 @@ end
 
 module FireAndForget
   class Request
-    attr_reader :method, :url, :content_type, :payload, :headers
+    attr_reader :method, :url, :content_type, :payload, :headers, :callback
 
     def initialize(args)
       @method = args[:method] || raise(ArgumentError.new("must pass :method"))
@@ -22,6 +22,7 @@ module FireAndForget
       else
         raise ArgumentError, "must pass :url"
       end
+      @callback = args[:callback]
       @payload = args[:payload]
       @args = args
     end
@@ -50,7 +51,10 @@ module FireAndForget
       socket.puts "\r\n"
       socket.puts body
       # For debugging purposes you can pass a block to read the socket or sleep for a bit.
-      if block_given?
+      # You can also set a callback when creating the instance and it will be called passing the socket.
+      if callback
+        callback.call(socket)
+      elsif block_given?
         yield(socket)
       end
       ensure
