@@ -8,9 +8,11 @@ module FireAndForget
     attr_reader :method, :url, :content_type, :payload, :headers
 
     def initialize(args)
-      @method = args[:method] or raise ArgumentError, "must pass :method"
+      @method = args[:method] || raise(ArgumentError.new("must pass :method"))
       @headers = args[:headers] || {}
-      @content_type = args[:content_type] || "application/json"
+      raise ArgumentError, ":headers should be nil or a Hash" unless (@headers.respond_to?(:keys) && @headers.respond_to?(:each))
+      @content_type = args[:content_type] || headers['Content-Type'] || "application/json"
+      @headers = {'Content-Type' => @content_type}.merge(headers)
       if args[:url]
         @url = args[:url]
       else
@@ -25,11 +27,10 @@ module FireAndForget
       req = []
       req << "#{method.respond_to?(:upcase) ? method.upcase : method.to_s.upcase} #{uri.request_uri} HTTP/1.0"
       req << "Host: #{uri.host}:#{uri.port}"
-      req << "Content-Type: #{content_type}"
-      req << "Content-Length: #{body_length}"
       processed_headers.each do |part|
         req << part
       end
+      req << "Content-Length: #{body_length}"
 
       socket = TCPSocket.open(uri.host, uri.port)
       req.each do |req_part|
@@ -51,7 +52,7 @@ module FireAndForget
     end
 
     def body_length
-      body ? body.length : 0
+      body ? body.bytesize : 0
     end
 
     def processed_headers
