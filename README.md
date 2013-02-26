@@ -61,8 +61,23 @@ Note that the block is executed before the connection is closed which is
 important if you want the client to wait before closing the socket, or
 if you want to read.
 
-This will not "forget" about the response, but instead wait for data to
-come down the socket so we can print.
+This approach wont "forget" about the response, but instead wait for data to
+come down the socket so we can print it.
+
+If you are interested in waiting for a minimum of x ms but stop waiting
+as soon as something comes back from the socket, you can use
+`select`:
+
+```ruby
+FAF.get "http://github.com/mattetti" do |socket|
+  IO.select([socket], nil, nil, 0.02)
+end
+```
+
+The code above would make a request and will wait for a response from
+the socket or will close the socket after 20ms. It's a nice way to set a
+max waiting response time on your client.
+
 
 Currently, FAF only supports basic options, no
 authentication unless you pass all the details via the headers.
