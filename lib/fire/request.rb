@@ -1,7 +1,11 @@
 require 'cgi'
 require 'socket'
 require 'uri'
-require 'json'
+begin
+  require 'json' 
+rescue LoadError
+  puts "The json lib wasn't available, payload objects won't be automatically converted to json."
+end
 
 module FireAndForget
   class Request
@@ -22,7 +26,7 @@ module FireAndForget
       @args = args
     end
 
-    def execute
+    def execute(forget=true)
       uri = URI.parse(url)
       req = []
       req << "#{method.respond_to?(:upcase) ? method.upcase : method.to_s.upcase} #{uri.request_uri} HTTP/1.0"
@@ -45,16 +49,29 @@ module FireAndForget
       #puts (req << body).inspect
       socket.puts "\r\n"
       socket.puts body
+      unless forget
+        while output = socket.gets
+          print output
+        end
+      end
       ensure
       socket.close if socket
     end
 
     def body
-      @body ||= if @payload
-                  @payload.is_a?(String) ? @payload : @payload.to_json
-                else
-                  ""
-                end
+      if @body
+        @body
+      else
+        if payload.nil?
+          @body = ""
+        elsif payload.is_a?(String)
+          @body = payload
+        elsif payload.respond_to?(:to_json)
+          @body = payload.to_json
+        else
+          @body = ""
+        end
+      end
     end
 
     def body_length
