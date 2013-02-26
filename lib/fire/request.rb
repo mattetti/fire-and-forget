@@ -32,6 +32,7 @@ module FireAndForget
         req << "Host: #{uri.host}"
       end
       req << "User-Agent: FAF #{FireAndForget::VERSION}"
+      req << "Accept: *"
       processed_headers.each do |part|
         req << part
       end
