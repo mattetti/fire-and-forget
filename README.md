@@ -8,6 +8,8 @@ its payload to a server and making sure the connection was established.
 So, unless you are really sure you want to use this lib, you're probably
 better off looking at the many other Ruby HTTP libraries out there.
 
+[![Build Status](https://travis-ci.org/mattetti/fire-and-forget.png?branch=master)](https://travis-ci.org/mattetti/fire-and-forget)
+
 ## Installation
 
 Add this line to your application's Gemfile:
