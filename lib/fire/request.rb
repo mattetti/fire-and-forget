@@ -1,6 +1,8 @@
 require 'cgi'
 require 'socket'
 require 'uri'
+require 'openssl'
+
 begin
   require 'json' 
 rescue LoadError
@@ -31,11 +33,7 @@ module FireAndForget
       uri = URI.parse(url)
       req = []
       req << "#{method.respond_to?(:upcase) ? method.upcase : method.to_s.upcase} #{uri.request_uri} HTTP/1.0"
-      if uri.port != 80
-        req << "Host: #{uri.host}:#{uri.port}"
-      else
-        req << "Host: #{uri.host}"
-      end
+      req << "Host: #{uri.host}"
       req << "User-Agent: FAF #{FireAndForget::VERSION}"
       req << "Accept: */*"
       processed_headers.each do |part|
@@ -43,22 +41,37 @@ module FireAndForget
       end
       req << "Content-Length: #{body_length}"
 
-      socket = TCPSocket.open(uri.host, uri.port)
+      #deciding over type of connection (http and https).
+      socket = nil
+      if uri.port == 443
+        socket = TCPSocket.new(uri.host, uri.port)
+        ssl_context = OpenSSL::SSL::SSLContext.new
+        ssl_context.set_params(verify_mode: OpenSSL::SSL::VERIFY_PEER)
+        socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
+        socket.sync_close = true
+        socket.connect
+      else
+        socket = TCPSocket.open(uri.host, uri.port)
+      end
+
       req.each do |req_part|
         socket.puts(req_part + "\r\n")
       end
-      #puts (req << body).inspect
+
       socket.puts "\r\n"
       socket.puts body
-      # For debugging purposes you can pass a block to read the socket or sleep for a bit.
-      # You can also set a callback when creating the instance and it will be called passing the socket.
+
+      #close the socket immediately, if block not given.
+      socket.close unless block_given? || callback
+
       if callback
         callback.call(socket)
       elsif block_given?
         yield(socket)
       end
+
       ensure
-      socket.close if socket
+        socket.close if socket && !socket.closed?
     end
 
     def body
