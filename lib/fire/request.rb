@@ -47,7 +47,8 @@ module FireAndForget
         socket = TCPSocket.new(uri.host, uri.port)
         socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
         ssl_context = OpenSSL::SSL::SSLContext.new
-        ssl_context.set_params(verify_mode: OpenSSL::SSL::VERIFY_PEER)
+        #Optional ssl certificate verify mode: OpenSSL::SSL::VERIFY_PEER
+        ssl_context.set_params(verify_mode: OpenSSL::SSL::VERIFY_NONE) 
         socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
         socket.sync_close = true
         socket.connect
