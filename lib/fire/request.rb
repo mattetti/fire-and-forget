@@ -45,6 +45,7 @@ module FireAndForget
       socket = nil
       if uri.port == 443
         socket = TCPSocket.new(uri.host, uri.port)
+        socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
         ssl_context = OpenSSL::SSL::SSLContext.new
         ssl_context.set_params(verify_mode: OpenSSL::SSL::VERIFY_PEER)
         socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
