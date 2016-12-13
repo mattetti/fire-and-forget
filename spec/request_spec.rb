@@ -79,7 +79,7 @@ describe FireAndForget::Request do
       it "are represented as an array of strings" do
         req = new_req(min_valid_args)
         req.processed_headers.each do |header_line|
-          header_line.is_a?(String).should be_true
+          header_line.is_a?(String).should eq(true)
           header_line.should match(/.*?:\s.+/)
         end
       end
